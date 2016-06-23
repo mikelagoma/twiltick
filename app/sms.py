@@ -38,13 +38,6 @@ def receive_sms():
     # Prepare response
     resp = twiml.Response()
 
-    # Temp testing text here
-    #client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-    #sms = client.messages.create(body='test',
-    #        to=user.phone,
-    #        from_="+16507775414")
-    #return(str(resp))
-
     # Response messages
     
     # User texts "subscribe"
@@ -72,13 +65,7 @@ def receive_sms():
         else:
             # more_info handles sending messages, no response
             more_info(user, symbols)
-            resp_text = ''#more_info(user, symbols)
-        #resp_text = 'request more info'
-        #print(info)
-        #with resp.message() as message:
-        #    message.body = info[0]
-        #    for url in info[1]:
-        #        message.media(url)
+            resp_text = ''
 
     # Assume message contains stock symbols
     else:
