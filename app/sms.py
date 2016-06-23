@@ -40,8 +40,8 @@ def receive_sms():
 
     # Response messages
     
-    # User texts "subscribe"
-    if rec_text == 'SUBSCRIBE':
+    # User texts "notify"
+    if rec_text == 'NOTIFY':
         symbols = check_lastsymbol(user)
         if not symbols:
             resp_text = 'Please text some symbols first'
@@ -49,13 +49,21 @@ def receive_sms():
             # add subscription
             resp_text = add_subscription(user, symbols)
 
-    # User texts "unsubscribe"
-    elif rec_text == 'UNSUBSCRIBE':
+    # User texts "remove"
+    elif rec_text == 'REMOVE':
         symbols = check_lastsymbol(user)
         if not symbols:
             resp_text = 'Please text some symbols first'
         else:
             resp_text = delete_subscription(user, symbols)
+
+    # User texts "remove all"
+    elif rec_text == 'REMOVEALL' or rec_text == 'REMOVE ALL':
+        symbols = check_lastsymbol(user)
+        if not symbols:
+            resp_text = 'Please text some symbols first'
+        else:
+            resp_text = delete_all_subscriptions(user)
 
     # User texts "moreinfo"
     elif rec_text == 'MOREINFO' or rec_text == 'MORE INFO':
@@ -147,7 +155,7 @@ def more_info(user, symbols):
         message += 'time = %s | '%stock['utctime']
         message += 'day high = %s | '%str(round(float(stock['day_high']),2))
         message += 'day low = %s | '%str(round(float(stock['day_low']),2))
-        message += 'change percent = %s %%'%str(round(float(stock['chg_percent']),2))
+        message += 'change = %s %%'%str(round(float(stock['chg_percent']),2))
 
         # Send MMS
         try:
@@ -164,7 +172,8 @@ def more_info(user, symbols):
 def add_subscription(user, symbols):
     message = ''
     # Iterate through user's lastsymbol entry
-    for symbol in user.lastsymbol.split(' '):
+    print(symbols)
+    for symbol in symbols:
         # Query for existing subscription entry
         s = Subscription.query.filter_by(symbol=symbol, subscriber=user).first()
         # If not, add it
@@ -178,3 +187,23 @@ def add_subscription(user, symbols):
         return 'You are already subscribed'
     else:
         return message + 'added to your subscriptions'
+
+def delete_subscription(user, symbols):
+    for s in symbols:
+        print(s, user)
+        sub = Subscription.query.filter_by(symbol=s,
+                                subscriber=user).first()
+        print(sub)
+        if not sub:
+            return 'Symbols already removed'
+        db.session.delete(sub)
+        db.session.commit()
+    return 'Removed %s from your subscriptions'%' '.join(symbols)
+
+def delete_all_subscriptions(user):
+    subs = Subscription.query.filter_by(subscriber=user)
+    for s in subs:
+        db.session.delete(s)
+        db.session.commit()
+    return 'Removed all subscriptions'
+    return
