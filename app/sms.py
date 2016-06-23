@@ -134,7 +134,9 @@ def get_price(user, symbols):
 #    #send_price(stock[0]['l'])
 #    return(stock[0]['l'] + ' USD')
 
+# Responds with additional information for user's last request symbol
 def more_info(user, symbols):
+    # Establish Twilio API client
     client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     # Manual Yahoo
     url = 'http://finance.yahoo.com/webservice/v1/symbols/' + ','.join(symbols) + '/quote'
@@ -143,34 +145,15 @@ def more_info(user, symbols):
     # Encoding UTF-8
     yahoo = json.loads(r.content.decode('UTF-8'))
     
-    # Returns stock price
-    #return(stock['list']['resources'][0]['resource']['fields']['price'])
-    #return
     # Extract fields for each stock
     stocks = [stock['resource']['fields'] for stock in yahoo['list']['resources']]
-    print(stocks)
-    # picks stock that matches symbol...old code
-    #stock = [stock for stock in stocks['list']['resources'][0] if stock['resource']['fields']['symbol'] == symbol]
-#    return jsonify({'stock': stock[0]})
-
-# Responds with additional information for user's last request symbol
-#def more_info(user):
     for stock in stocks:
         message = ''
-        # URL for chart
+        # URL for chart of this stock
         base_media_url = 'https://www.google.com/finance/getchart?q='
         media = base_media_url + stock['symbol']
-    ## Twilio limits to 10 images (will change to multiple messages instead)
-    #count = 1
-    #for symbol in symbols:
-    #    media.append(base_media_url + symbol)
-    #    if count == 10:
-    #        break
-    #    count += 1
-    #count = 1
-    #stocks = getQuotes(symbols)
-    #for stock in stocks:
-        print(stock)
+
+        # Build message for this stock
         message += 'Info on %s '%stock['issuer_name']
         message += '(%s): '%stock['symbol']
         message += 'last trade price = %s | '%str(round(float(stock['price']),2))
@@ -178,12 +161,8 @@ def more_info(user, symbols):
         message += 'day high = %s | '%str(round(float(stock['day_high']),2))
         message += 'day low = %s | '%str(round(float(stock['day_low']),2))
         message += 'change percent = %s %%'%str(round(float(stock['chg_percent']),2))
-        #if count == 10:
-        #    break
-        #count += 1
-        print('attempting to send message to: %s'%user.phone)
-        print('message: %s'%message)
-        print('media url: %s'%media)
+
+        # Send MMS
         try:
             sms = client.messages.create(body=message,
                                         media_url=media,
