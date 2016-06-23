@@ -18,8 +18,11 @@ client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 #@manager.command
 def job():
     users = models.User.query.all()
-    for xuser in range(len(users)):
-        user = users[xuser]
+    print(users)
+    for user in users:
+    #for xuser in range(len(users)):
+        #user = users[xuser]
+        print(user)
         subs = models.Subscription.query.filter_by(subscriber=user).all()
         if subs:
             symbols = list()
@@ -31,10 +34,11 @@ def job():
                 sms = client.messages.create(body=', '.join(prices),
                         to=user.phone,
                         from_="+16507775414")
+                print('sending message')
             except:
                 print('number not verified, remove from database')
 
-schedule.every(10).minutes.do(job)
+schedule.every(1).minutes.do(job)
 
 @manager.command
 def subs():
