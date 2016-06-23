@@ -8,7 +8,7 @@ import requests
 from googlefinance import getQuotes
 from twilio import twiml
 from twilio.rest import TwilioRestClient
-from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
+from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE
 import os, re, string
 
 # Route used to handle Twilio POST request
@@ -162,7 +162,7 @@ def more_info(user, symbols):
             sms = client.messages.create(body=message,
                                         media_url=media,
                                         to=user.phone,
-                                        from_="+16507775414")
+                                        from_=TWILIO_PHONE)
             print(sms)
         except:
             print('number not verified, remove from database')

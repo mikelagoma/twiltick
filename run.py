@@ -5,7 +5,7 @@ from app import app, models, db
 from app.sms import get_price
 from googlefinance import getQuotes
 from twilio.rest import TwilioRestClient
-from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
+from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE
 import schedule
 import time
 
@@ -18,11 +18,7 @@ client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 #@manager.command
 def job():
     users = models.User.query.all()
-    print(users)
     for user in users:
-    #for xuser in range(len(users)):
-        #user = users[xuser]
-        print(user)
         subs = models.Subscription.query.filter_by(subscriber=user).all()
         if subs:
             symbols = list()
@@ -33,12 +29,12 @@ def job():
             try:
                 sms = client.messages.create(body=', '.join(prices),
                         to=user.phone,
-                        from_="+16507775414")
+                        from_=TWILIO_PHONE)
                 print('sending message')
             except:
                 print('number not verified, remove from database')
 
-schedule.every(1).minutes.do(job)
+schedule.every(10).minutes.do(job)
 
 @manager.command
 def subs():
